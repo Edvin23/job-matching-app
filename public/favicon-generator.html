@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Favicon Generator Instructions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #2563eb;
+    }
+    .step {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 5px;
+    }
+    code {
+      background-color: #e5e7eb;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>How to Generate a Favicon for Job Matcher</h1>
+  
+  <div class="step">
+    <h2>Option 1: Use an Online Favicon Generator</h2>
+    <ol>
+      <li>Go to <a href="https://favicon.io/" target="_blank">favicon.io</a> or <a href="https://realfavicongenerator.net/" target="_blank">RealFaviconGenerator</a></li>
+      <li>Upload your logo192.png file</li>
+      <li>Download the generated favicon.ico file</li>
+      <li>Replace the existing favicon.ico in your public folder with the new one</li>
+    </ol>
+  </div>
+  
+  <div class="step">
+    <h2>Option 2: Use Image Editing Software</h2>
+    <ol>
+      <li>Open your logo192.png in an image editor like Photoshop, GIMP, or even online tools like <a href="https://www.photopea.com/" target="_blank">Photopea</a></li>
+      <li>Resize the image to 32x32 pixels (or 16x16 for smaller favicons)</li>
+      <li>Save as .ico format</li>
+      <li>Replace the existing favicon.ico in your public folder</li>
+    </ol>
+  </div>
+  
+  <div class="step">
+    <h2>Option 3: Use Command Line Tools</h2>
+    <p>If you have ImageMagick installed:</p>
+    <code>convert logo192.png -resize 32x32 favicon.ico</code>
+  </div>
+  
+  <p>After replacing the favicon, restart your development server to see the changes.</p>
+</body>
+</html> 
