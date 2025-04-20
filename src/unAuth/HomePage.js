@@ -6,7 +6,10 @@ const HomePage = () => {
     <div className="landing-container">
       <header className="landing-header">
         <div className="logo-container">
-          <h1 className="logo">Job Matcher</h1>
+          <div className="logo-wrapper">
+            <img src="/logo192.png" alt="Job Matcher Logo" className="logo-image" />
+            <h1 className="logo">Job Matcher</h1>
+          </div>
           <p className="tagline">Find your perfect career match</p>
         </div>
         <nav className="landing-nav">
@@ -45,6 +48,7 @@ const HomePage = () => {
       </main>
       
       <footer className="landing-footer">
+        <img src="/logo192.png" alt="Job Matcher Logo" className="footer-logo" />
         <p>&copy; 2023 Job Matcher. All rights reserved.</p>
       </footer>
     </div>
