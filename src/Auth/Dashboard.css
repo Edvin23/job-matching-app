@@ -1,0 +1,12 @@
+.dashboard-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--unauth-bg-color);
+}
+
+.dashboard-header {
+    color: var(--unauth-text-color);
+    font-size: 2rem;
+}

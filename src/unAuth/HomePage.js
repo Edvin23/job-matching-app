@@ -1,7 +1,25 @@
 import React, { useState } from 'react';
 import './HomePage.css';
+import { signInWithGoogle } from '../googleAuth';
 
 const HomePage = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await signInWithGoogle();
+      // Redirect or update UI after successful login
+    } catch (err) {
+      setError('Failed to sign in with Google. Please try again.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="landing-container">
       <header className="landing-header">
@@ -13,9 +31,16 @@ const HomePage = () => {
           <p className="tagline">Find your perfect career match</p>
         </div>
         <nav className="landing-nav">
-          <button className="nav-button login">Login</button>
+          <button 
+            className="nav-button login" 
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+          >
+            {loading ? 'Signing in...' : 'Login with Google'}
+          </button>
           <button className="nav-button signup">Sign Up</button>
         </nav>
+        {error && <div className="error-message">{error}</div>}
       </header>
       
       <main className="landing-main">
@@ -25,7 +50,9 @@ const HomePage = () => {
             Connect with opportunities that match your skills, experience, and aspirations.
             Let Job Matcher guide you to your next career milestone.
           </p>
-          <button className="cta-button">Get Started</button>
+          <button className="cta-button" onClick={handleGoogleSignIn} disabled={loading}>
+            {loading ? 'Signing in...' : 'Get Started'}
+          </button>
         </section>
         
         <section className="features-section">
