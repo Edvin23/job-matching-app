@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './HomePage.css';
 import { signInWithGoogle } from '../googleAuth';
+import { Link } from 'react-router-dom';
 
 const HomePage = () => {
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,7 @@ const HomePage = () => {
           >
             {loading ? 'Signing in...' : 'Login with Google'}
           </button>
-          <button className="nav-button signup">Sign Up</button>
+          <Link to="/signUpPage" className="nav-button signup">Sign Up</Link>
         </nav>
         {error && <div className="error-message">{error}</div>}
       </header>

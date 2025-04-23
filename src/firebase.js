@@ -6,8 +6,21 @@ import { getAuth, GoogleAuthProvider, sendSignInLinkToEmail,
     signInWithEmailLink,
     onAuthStateChanged,
     connectAuthEmulator,
-    getRedirectResult
+    getRedirectResult,
+    signInWithRedirect,
+    signOut
  } from "firebase/auth";
+
+ import {
+    getFirestore,
+    doc,
+    getDoc,
+    connectFirestoreEmulator
+ } from 'firebase/firestore';
+
+ import {getFunctions, connectFunctionsEmulator} from 'firebase/functions';
+ import { getStorage , connectStorageEmulator } from 'firebase/storage';
+
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -26,12 +39,24 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
+const storage = getStorage(app);
+const db = getFirestore(app);
+const functions = getFunctions(app);
+
+if (process.env.NODE_ENV === 'development'){
+    connectAuthEmulator(auth, 'http://localHost:9099');
+}
 
 export {
+    app,
     auth,
     googleProvider,
-    sendSignInLinkToEmail
+    sendSignInLinkToEmail,
+    signInWithEmailLink,
+    isSignInWithEmailLink,
+    signInWithRedirect,
+    onAuthStateChanged,
+    getRedirectResult
 };

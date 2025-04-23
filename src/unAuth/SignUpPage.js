@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigation } from 'react-router-dom';
-import './unAuth/SignUpPage.css';
+import { useNavigate } from 'react-router-dom';
+import './SignUpPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons'
 import { auth, googleProvider, signInWithRedirect, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, getRedirectResult } from '../firebase';
 
 const SignUpPage = () => {
     const [email, setEmail] = useState('');
-    const navigate = useNavigation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Check for redirect result
