@@ -7,19 +7,21 @@ import { getAuth, GoogleAuthProvider, sendSignInLinkToEmail,
     onAuthStateChanged,
     connectAuthEmulator,
     getRedirectResult,
-    signInWithRedirect,
-    signOut
+    signInWithRedirect
  } from "firebase/auth";
 
- import {
+// Import Firestore functions
+import {
     getFirestore,
-    doc,
-    getDoc,
-    connectFirestoreEmulator
- } from 'firebase/firestore';
+    // These are commented out but kept for future use
+    // doc,
+    // getDoc,
+    // connectFirestoreEmulator
+} from 'firebase/firestore';
 
- import {getFunctions, connectFunctionsEmulator} from 'firebase/functions';
- import { getStorage , connectStorageEmulator } from 'firebase/storage';
+// Import Functions and Storage
+import { getFunctions } from 'firebase/functions';
+import { getStorage } from 'firebase/storage';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -38,11 +40,15 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+// eslint-disable-next-line no-unused-vars
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
+// eslint-disable-next-line no-unused-vars
 const storage = getStorage(app);
+// eslint-disable-next-line no-unused-vars
 const db = getFirestore(app);
+// eslint-disable-next-line no-unused-vars
 const functions = getFunctions(app);
 
 if (process.env.NODE_ENV === 'development'){

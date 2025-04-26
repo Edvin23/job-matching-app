@@ -6,7 +6,7 @@ import SignUpPage from './unAuth/SignUpPage';
 import Dashboard from './Auth/Dashboard';
 import { AuthProvider, useAuth } from './AuthContext';
 import './firebase';
-//import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet';
 
 const PrivateRoute = ({children}) => {
   const{ currentUser, loading } = useAuth();
