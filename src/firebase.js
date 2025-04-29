@@ -12,6 +12,7 @@ import { getAuth, GoogleAuthProvider, sendSignInLinkToEmail,
 
 // Import Firestore functions
 import {
+    connectFirestoreEmulator,
     getFirestore,
     // These are commented out but kept for future use
     // doc,
@@ -53,12 +54,16 @@ const functions = getFunctions(app);
 
 if (process.env.NODE_ENV === 'development'){
     connectAuthEmulator(auth, 'http://localHost:9099');
+    connectFirestoreEmulator(db, 'localhost', 8080);
 }
 
 export {
     app,
     auth,
     googleProvider,
+    storage,
+    functions,
+    analytics,
     sendSignInLinkToEmail,
     signInWithEmailLink,
     isSignInWithEmailLink,

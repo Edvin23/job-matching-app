@@ -21,6 +21,17 @@
       "predeploy": [
         "npm --prefix \"$RESOURCE_DIR\" run lint"
       ]
+    },
+    {
+      "source": "python_functions",
+      "codebase": "python_functions",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
     }
   ],
   "emulators": {
@@ -40,5 +51,8 @@
       "enabled": true,
       "port": 4000
     }
+  },
+  "storage": {
+    "rules": "storage.rules"
   }
 }
