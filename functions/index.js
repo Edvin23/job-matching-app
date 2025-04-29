@@ -1,7 +1,5 @@
-// Import 1st Gen Firebase Functions for Auth Triggers
+// Import Firebase Functions
 const functions = require("firebase-functions");
-
-// Import 2nd Gen Firebase Functions for HTTP Triggers
 const functionsV2 = require("firebase-functions/v2");
 
 // Import Firebase Admin SDK
@@ -18,33 +16,31 @@ exports.helloWorld = functionsV2.https.onRequest((req, res) => {
   res.send("Hello from Firebase!");
 });
 
-exports.onUserCreate = functions.auth.user().onCreate(async (user) => {
-  try {
-    // Log the new user's UID and email
-    console.log(`New user created: UID=${user.uid}, Email=${user.email}`);
+// Auth trigger for new user creation
+exports.onUserCreate = functions.auth.user().onCreate((userRecord) => {
+  // Log the new user's UID and email
+  console.log(
+      `New user created: UID=${userRecord.uid}, Email=${userRecord.email}`);
 
-    // Randomly select between two profile images
-    const profileImages = [
-      "https://firebasestorage.googleapis.com/v0/b/imagelocation",
-      "https://firebasestorage.googleapis.com/v0/b/imagelocation",
-    ];
-    const randomProfileImage = profileImages[
-        Math.floor(Math.random() * profileImages.length)
-    ];
-    // Store profileImage and userEmails directly in the user's document
-    await admin.firestore().collection("users").doc(user.uid).set({
-      userProfile: {
-        profileImage: randomProfileImage,
-        userEmail: user.email,
-      },
-    }, {merge: true}); // Use merge to avoid overwriting existing fields
+  // Randomly select between two profile images
+  const profileImages = [
+    "https://firebasestorage.googleapis.com/v0/b/job-matching-app-4e495.appspot.com/o/profile1.jpg",
+    "https://firebasestorage.googleapis.com/v0/b/job-matching-app-4e495.appspot.com/o/profile2.jpg",
+  ];
+  const randomProfileImage = profileImages[
+      Math.floor(Math.random() * profileImages.length)
+  ];
 
-    // If you have additional logic, add it here
-  } catch (error) {
-    console.error("Error handling new user creation:", error);
-  }
+  // Store profileImage and userEmail in the user's document
+  return admin.firestore().collection("users").doc(userRecord.uid).set({
+    userProfile: {
+      profileImage: randomProfileImage,
+      userEmail: userRecord.email,
+    },
+  }, {merge: true}); // Use merge to avoid overwriting existing fields
 });
 
+// Function to analyze resume and match with jobs
 exports.analyzeResume = functions.https.onCall(async (data, context) => {
   try {
     if (!context.auth) {
@@ -68,10 +64,13 @@ exports.analyzeResume = functions.https.onCall(async (data, context) => {
       apiKey: functions.config().openai.api_key,
     });
 
-    // eslint-disable-next-line max-len
-    const promptIntro = "Analyze this resume and match it with the most suitable jobs from the following list.";
-    // eslint-disable-next-line max-len
-    const promptInstructions = "Consider skills, experience, and qualifications. Return a JSON array of job matches with match percentage.";
+    // Split long prompt into multiple lines
+    const promptIntro =
+      "Analyze this resume and match it with the most suitable jobs " +
+      "from the following list.";
+    const promptInstructions =
+      "Consider skills, experience, and qualifications. " +
+      "Return a JSON array of job matches with match percentage.";
     const prompt = `${promptIntro}
 ${promptInstructions}
 
@@ -81,8 +80,11 @@ ${resumeText}
 Available Jobs:
 ${JSON.stringify(jobs, null, 2)}`;
 
-    // eslint-disable-next-line max-len
-    const systemMessage = "You are a professional job matching assistant. Analyze resumes and match them with job openings based on skills, experience, and qualifications.";
+    // Split long system message into multiple lines
+    const systemMessage =
+      "You are a professional job matching assistant. " +
+      "Analyze resumes and match them with job openings based on " +
+      "skills, experience, and qualifications.";
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4",

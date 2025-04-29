@@ -1,13 +1,12 @@
 import './Dashboard.css';
 import React, { useEffect, useState, useRef } from 'react';
-import { auth, db, functions, storage } from './..firebase';
+import { auth, db, functions, storage } from '../firebase';
 import { doc, getDoc, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { useNavigate } from 'react-router-dom';
-import UserPrompts from './UserPrompts';
 import ResumeAI from './ResumeAI';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUpload } from '@fortawesome/react-fontawesome';
+import { faUpload } from '@fortawesome/free-solid-svg-icons';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { loadStripe } from '@stripe/stripe-js';
 import { signOut } from 'firebase/auth';
@@ -269,7 +268,7 @@ const Dashboard = () => {
                 </div>
                 <div className="dashboard-section">
                     <h3>AI Assistant</h3>
-                    <UserPrompts
+                    <ResumeAI
                         prompts={prompts}
                         onSubmit={handleUserPromptSubmit}
                         AIResponses={AIResponses}
