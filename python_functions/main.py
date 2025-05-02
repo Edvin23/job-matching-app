@@ -1,47 +1,32 @@
-# Welcome to Cloud Functions for Firebase for Python!
-# To get started, simply uncomment the below code or create your own.
-# Deploy with `firebase deploy`
-
 from firebase_functions import https_fn
 from firebase_admin import initialize_app, firestore
 from openai import OpenAI
-from dotenv import load_dotenv
-import stripe
 import os
-import requests
-import json
 
-load_dotenv()
+# Set OpenAI API key (from env or directly for local testing)
+openai_api_key = os.getenv("OPENAI_API_KEY")  # or hardcode: "sk-..." (not safe for production)
+client = OpenAI(api_key=openai_api_key)
 
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
-
-GA4_MEASUREMENT_ID = os.environ.get("GA4_MEASUREMENT_ID")
-GA4_API_SECRET = os.environ.get("GA4_API_SECRET")
-GA4_URL = f"https://www.google-analytics.com/mp/collect?measurement_id={GA4_MEASUREMENT_ID}&api_secret={GA4_API_SECRET}"
-
-openai_api_key = os.getenv("OPEN_API_KEY")
-if not openai_api_key:
-    raise ValueError("OPENAI_API_KEY is not set in the .env file")
-
+# Initialize Firebase
 initialize_app()
 db = firestore.client()
 
-client = OpenAI(api_key=openai_api_key)
-
-@https_fn.on_call()
+@https_fn.on_call()  # ← Removed secrets argument
 def generate_completion(req: https_fn.CallableRequest) -> dict:
     try:
         if not req.auth:
-            return { "error": "Authentication required."}
+            return {"error": "Authentication required."}
+
         uid = req.auth.uid
         if not uid:
-            return{"error": "User UID not found."}
-        user_prompt = req.data.get("userPromp", "")
+            return {"error": "User UID not found."}
+
+        user_prompt = req.data.get("userPrompt", "")
         if not user_prompt:
             return {"error": "userPrompt is required"}
-        
+
         response = client.chat.completions.create(
-             model="gpt-4",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": user_prompt}
@@ -61,202 +46,3 @@ def generate_completion(req: https_fn.CallableRequest) -> dict:
     except Exception as e:
         print(f"Error: {str(e)}")
         return {"error": str(e)}
-
-
-@https_fn.on_call()
-def analyze_resume(req: https_fn.CallableRequest) -> dict:
-    """
-    Analyze a resume and match it with suitable jobs.
-    
-    Args:
-        req: The request object containing the resume text
-        
-    Returns:
-        A dictionary containing job matches with match percentages
-    """
-    try:
-        if not req.auth:
-            return {"error": "Authentication required."}
-            
-        uid = req.auth.uid
-        if not uid:
-            return {"error": "User UID not found."}
-            
-        resume_text = req.data.get("resumeText", "")
-        if not resume_text:
-            return {"error": "Resume text is required"}
-            
-        # Get all job openings from Firestore
-        jobs_ref = db.collection('jobs')
-        jobs_snapshot = jobs_ref.get()
-        
-        jobs = []
-        for doc in jobs_snapshot:
-            job_data = doc.to_dict()
-            job_data['id'] = doc.id
-            jobs.append(job_data)
-            
-        if not jobs:
-            return {"error": "No jobs found in the database"}
-            
-        # Create a prompt for OpenAI to analyze the resume and match with jobs
-        prompt = f"""
-        Analyze this resume and match it with the most suitable jobs from the following list.
-        Consider skills, experience, and qualifications. Return a JSON array of job matches with match percentage.
-        
-        Resume:
-        {resume_text}
-        
-        Available Jobs:
-        {json.dumps(jobs, indent=2)}
-        """
-        
-        # Call OpenAI to analyze the resume
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {
-                    "role": "system", 
-                    "content": "You are a professional job matching assistant. Analyze resumes and match them with job openings based on skills, experience, and qualifications."
-                },
-                {"role": "user", "content": prompt}
-            ],
-            response_format={"type": "json_object"}
-        )
-        
-        # Parse the response
-        matches = json.loads(response.choices[0].message.content)
-        
-        # Store the analysis in Firestore
-        user_doc_ref = db.collection('users').document(uid)
-        analysis_ref = user_doc_ref.collection('resumeAnalyses').document()
-        analysis_ref.set({
-            'timestamp': firestore.SERVER_TIMESTAMP,
-            'resumeText': resume_text,
-            'matches': matches
-        })
-        
-        return {"matches": matches}
-        
-    except Exception as e:
-        print(f"Error analyzing resume: {str(e)}")
-        return {"error": str(e)}
-
-
-@https_fn.on_call()
-def startPaymentSession(req: https_fn.CallableRequest) -> dict:
-    try:
-        if not req.auth:
-            return {"error": "Authentication required."}
-        
-        uid = req.auth.uid
-        if not uid:
-            return {"error": "User UID not found."}
-
-        # Extract gclid and plan from the request data
-        gclid = req.data.get("gclid", "")
-        plan = req.data.get("plan", "Messagly")
-
-        # Create a Stripe Checkout Session with metadata
-        session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[{
-                "price": "price_1QWP6xGjBypHkVTGldP28xzF",
-                "quantity": 1,
-            }],
-            mode="payment",
-            success_url="http://localhost:3000/dashboard",
-            cancel_url="http://localhost:3000/dashboard",
-            metadata={"uid": uid, "gclid": gclid, "plan": plan}
-        )
-
-        # After creating the session, send the begin_checkout event to GA4
-        send_ga4_begin_checkout_event(uid, gclid, plan)
-
-        return {"sessionId": session.id}
-
-    except Exception as e:
-        print(f"Error creating payment session: {str(e)}")
-        return {"error": str(e)}
-
-
-def send_ga4_begin_checkout_event(user_id: str, gclid: str, plan_name: str):
-    """Send the begin_checkout event to GA4."""
-    if not GA4_MEASUREMENT_ID or not GA4_API_SECRET:
-        print("GA4 environment variables not set, skipping event.")
-        return
-
-    event_params = {
-        "currency": "USD",
-        "value": 100,  # Example value, adjust as needed
-        "items": [
-            {
-                "item_name": f"{plan_name} Plan",
-                "quantity": 1
-            }
-        ]
-    }
-
-    # Include user_id and gclid if present
-    if user_id:
-        event_params["user_id"] = user_id
-    if gclid:
-        event_params["gclid"] = gclid
-
-    payload = {
-        "client_id": f"{user_id}",
-        "user_id": user_id,
-        "events": [
-            {
-                "name": "begin_checkout",
-                "params": event_params
-            }
-        ]
-    }
-
-    try:
-        response = requests.post(GA4_URL, json=payload)
-        print(f"GA4 begin_checkout event status: {response.status_code}, response: {response.text}")
-    except Exception as e:
-        print(f"Error sending GA4 event: {str(e)}")
-
-
-@https_fn.on_request()
-def handle_stripe_webhook(req: https_fn.Request):
-    endpoint_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
-    if not endpoint_secret:
-        return ("Endpoint secret not set", 500)
-
-    payload = req.get_data(as_text=True)
-    sig = req.headers.get("Stripe-Signature", None)
-
-    try:
-        event = stripe.Webhook.construct_event(
-            payload, sig, endpoint_secret
-        )
-    except ValueError:
-        return ("Invalid payload", 400)
-    except stripe.error.SignatureVerificationError:
-        return ("Invalid signature", 400)
-
-    if event["type"] == "checkout.session.completed":
-        session = event["data"]["object"]
-        uid = session.get("metadata", {}).get("uid")
-
-        if uid:
-            user_doc_ref = db.collection('users').document(uid)
-            user_doc_ref.update({
-                "credits": firestore.Increment(100)
-            })
-            print(f"User {uid} has been granted 100 credits.")
-        else:
-            print("No UID found in session metadata.")
-
-    return ("", 200)
-
-initialize_app()
-
-
-# @https_fn.on_request()
-# def on_request_example(req: https_fn.Request) -> https_fn.Response:
-#     return https_fn.Response("Hello world!")

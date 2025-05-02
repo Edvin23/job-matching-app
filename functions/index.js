@@ -1,6 +1,7 @@
 // Import Firebase Functions
 const functions = require("firebase-functions");
 const functionsV2 = require("firebase-functions/v2");
+const functionsV1 = require("firebase-functions/v1");
 
 // Import Firebase Admin SDK
 const admin = require("firebase-admin");
@@ -12,12 +13,12 @@ const OpenAI = require("openai");
 admin.initializeApp();
 
 // HTTP function using 2nd Gen syntax
-exports.helloWorld = functionsV2.https.onRequest((req, res) => {
-  res.send("Hello from Firebase!");
-});
+// exports.helloWorld = functionsV2.https.onRequest((req, res) => {
+//   res.send("Hello from Firebase!");
+// });
 
 // Auth trigger for new user creation
-exports.onUserCreate = functions.auth.user().onCreate((userRecord) => {
+exports.onUserCreate = functionsV1.auth.user().onCreate((userRecord) => {
   // Log the new user's UID and email
   console.log(
       `New user created: UID=${userRecord.uid}, Email=${userRecord.email}`);

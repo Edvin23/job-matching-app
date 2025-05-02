@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "job-matching-app-4e495"
+    "default": "job-matching-app-4e495",
+    "qa": "job-matching-app-4e495"
   }
 }

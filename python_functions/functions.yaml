@@ -1,0 +1,8 @@
+specVersion: v1alpha
+runtime: python312
+
+endpoints:
+  generate_completion:
+    entryPoint: generate_completion
+    httpsCallable: true
+    region: us-central1

@@ -15,8 +15,8 @@ import {
     connectFirestoreEmulator,
     getFirestore,
     // These are commented out but kept for future use
-    // doc,
-    // getDoc,
+     doc,
+     getDoc,
     // connectFirestoreEmulator
 } from 'firebase/firestore';
 
@@ -37,7 +37,7 @@ const firebaseConfig = {
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
-  aiKey: process.env.OPEN_API_KEY
+  aiKey: process.env.OPENAI_API_KEY
 };
 
 // Initialize Firebase
@@ -53,10 +53,10 @@ const db = getFirestore(app);
 // eslint-disable-next-line no-unused-vars
 const functions = getFunctions(app);
 
-if (process.env.NODE_ENV === 'development'){
-    connectAuthEmulator(auth, 'http://localHost:9099');
-    connectFirestoreEmulator(db, 'localhost', 8080);
-}
+// if (process.env.NODE_ENV === 'development'){
+//     connectAuthEmulator(auth, 'http://localHost:9099');
+//     connectFirestoreEmulator(db, 'localhost', 8080);
+// }
 
 export {
     app,

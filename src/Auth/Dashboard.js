@@ -11,7 +11,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { loadStripe } from '@stripe/stripe-js';
 import { signOut } from 'firebase/auth';
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
+//const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY);
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
@@ -54,10 +54,10 @@ const Dashboard = () => {
             const response = await createSession(payload);
             
             const { sessionId } = response.data;
-            const stripe = await stripePromise;
+            //const stripe = await stripePromise;
 
             // Redirect to Stripe Checkout
-            const { error } = await stripe.redirectToCheckout({ sessionId });
+            //const { error } = await stripe.redirectToCheckout({ sessionId });
 
             if (error) {
                 // Handle Stripe redirection errors
